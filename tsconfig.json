@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "prisma/seed.js", "prisma/seeds/portfolios.js", "prisma/seeds/experiences.js", "prisma/seeds/faqs.js", "prisma/seeds/techStacks.js", "prisma/seeds/testimonials.js"],
   "exclude": ["node_modules"]
 }

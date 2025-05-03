@@ -1,0 +1,97 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String?
+  role         String   @default("user") // Options: "admin", "user"
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  title       String
+  list        Json     // Stored as JSON array
+  company     String
+  companyLogo String?
+  duration    String
+  location    String
+  skills      Json     // Stored as JSON array
+  achievements Json    // Stored as JSON array
+  current     Boolean  @default(false)
+  type        String
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Portfolio {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  category       String
+  image          String
+  description    String   @db.Text
+  technologies   Json     // Stored as JSON array
+  year           String
+  role           String
+  duration       String
+  highlight      String?
+  keyFeatures    Json     // Stored as JSON array
+  gallery        Json     // Stored as JSON array
+  challenges     Json?    // Stored as JSON array
+  solutions      Json?    // Stored as JSON array
+  testimonial    Json?    // Stored as JSON object
+  nextProject    String?
+  nextProjectSlug String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TechStack {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  icon        String
+  category    String
+  proficiency Int
+  color       String
+  description String   @db.Text
+  years       Int
+  projects    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  category  String?
+  order     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  name      String
+  position  String
+  avatar    String?
+  company   String?
+  rating    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
