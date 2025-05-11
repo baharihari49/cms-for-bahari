@@ -52,7 +52,22 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const id = extractId(request);
-    const isSlug = !id.includes('-') && isNaN(Number(id.charAt(0)));
+    const isSlug = !id.includes('-') && id.length < 10; // Perbaikan logika pendeteksian slug
+    
+    // Cek apakah portfolio item exists
+    const existingItem = await prisma.portfolio.findUnique({
+      where: isSlug ? { slug: id } : { id }
+    });
+
+    if (!existingItem) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Portfolio with ${isSlug ? 'slug' : 'id'} '${id}' not found` 
+        }, 
+        { status: 404 }
+      );
+    }
 
     const body = await request.json();
     
@@ -127,7 +142,35 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true, data: transformedItem });
   } catch (error) {
     console.error('Error updating portfolio item:', error);
-    return NextResponse.json({ success: false, error: 'Failed to update portfolio item' }, { status: 500 });
+    
+    // Handle specific Prisma errors
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Portfolio item not found' 
+          }, 
+          { status: 404 }
+        );
+      }
+      // Handle other Prisma errors
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Database error: ${error.message}` 
+        }, 
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to update portfolio item' 
+      }, 
+      { status: 500 }
+    );
   }
 }
 

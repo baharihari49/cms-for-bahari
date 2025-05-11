@@ -373,12 +373,12 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     onValueChange={(value) => handleSelectChange('category', value)}
                   >
                     <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a category">Select a Category</SelectValue>
+                      <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="web">Web</SelectItem>
-                      <SelectItem value="webapp">Web App</SelectItem>
-                      <SelectItem value="ai">AI</SelectItem>
+                      <SelectItem value="Web">Web</SelectItem>
+                      <SelectItem value="Web App">Web App</SelectItem>
+                      <SelectItem value="AI">AI</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
