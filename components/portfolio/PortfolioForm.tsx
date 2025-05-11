@@ -295,9 +295,12 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
     }
   };
 
-  function handleSelectChange(arg0: string, value: string): void {
-    throw new Error('Function not implemented.');
-  }
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
@@ -365,14 +368,17 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Category*</Label>
-                  <Select name="category" value={formData.category} onValueChange={(value) => handleSelectChange('category', value)}>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => handleSelectChange('category', value)}
+                  >
                     <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a category" >Select a Category</SelectValue>
+                      <SelectValue placeholder="Select a category">Select a Category</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="web">Web</SelectItem>
-                      <SelectItem value="mobile">Web App</SelectItem>
-                      <SelectItem value="ui">AI</SelectItem>
+                      <SelectItem value="webapp">Web App</SelectItem>
+                      <SelectItem value="ai">AI</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
