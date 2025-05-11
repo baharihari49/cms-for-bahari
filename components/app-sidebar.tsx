@@ -101,7 +101,7 @@ export function AppSidebar() {
     <Sidebar className="h-screen">
       <SidebarContent className="flex flex-col h-full">
         {/* Logo and Brand */}
-        <div className="py-6 px-3 flex items-center justify-center mb-6">
+        <div className="py-3 px-3 flex items-center">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="relative h-10 w-10 overflow-hidden rounded-full bg-primary flex items-center justify-center">
               <span className="text-xl font-semibold text-white">B</span>

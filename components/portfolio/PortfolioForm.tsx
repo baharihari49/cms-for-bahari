@@ -8,12 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
 } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -144,15 +145,15 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+
     setFormData((prev) => {
       const updatedData = { ...prev, [name]: value };
-      
+
       // Auto-generate slug when title changes if slug is empty or matches previous title
       if (name === 'title' && (!prev.slug || prev.slug === generateSlug(prev.title))) {
         updatedData.slug = generateSlug(value);
       }
-      
+
       return updatedData;
     });
   };
@@ -226,11 +227,11 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    
+
     // Basic validation
     try {
       portfolioSchema.parse(formData);
-      
+
       // Additional validation
       if (technologies.length === 0) {
         throw new Error("At least one technology is required");
@@ -241,7 +242,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
       if (gallery.length === 0) {
         throw new Error("At least one gallery image is required");
       }
-      
+
       // If testimonial is partially filled, require all fields
       if (testimonial) {
         if (!testimonial.text || !testimonial.author || !testimonial.position) {
@@ -258,7 +259,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
       }
       return;
     }
-    
+
     // Prepare data for submission
     const portfolioData = {
       ...formData,
@@ -269,12 +270,12 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
       solutions: solutions.length > 0 ? solutions : undefined,
       testimonial: testimonial && testimonial.text ? testimonial : undefined,
     };
-    
+
     setFormSubmitting(true);
-    
+
     try {
       let result;
-      
+
       if (portfolio) {
         // Update existing portfolio
         result = await updatePortfolioItem(portfolio.id, portfolioData);
@@ -282,7 +283,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
         // Create new portfolio
         result = await createPortfolioItem(portfolioData);
       }
-      
+
       if (result.success) {
         onClose();
         onSuccess();
@@ -293,6 +294,10 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
       setFormSubmitting(false);
     }
   };
+
+  function handleSelectChange(arg0: string, value: string): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
@@ -306,18 +311,18 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
             {portfolio ? 'Edit Portfolio Project' : 'Add New Portfolio Project'}
           </DialogTitle>
           <DialogDescription>
-            {portfolio 
-              ? 'Update the details of your portfolio project.' 
+            {portfolio
+              ? 'Update the details of your portfolio project.'
               : 'Add details about your portfolio project.'}
           </DialogDescription>
         </DialogHeader>
-        
+
         {formError && (
           <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md mb-4">
             {formError}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-4 mb-4">
@@ -326,7 +331,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
               <TabsTrigger value="media">Media</TabsTrigger>
               <TabsTrigger value="extra">Additional</TabsTrigger>
             </TabsList>
-            
+
             {/* Basic Info Tab */}
             <TabsContent value="basic" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -341,7 +346,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     placeholder="My Awesome Project"
                   />
                 </div>
-                
+
                 {/* Slug */}
                 <div className="space-y-2">
                   <Label htmlFor="slug">URL Slug*</Label>
@@ -356,19 +361,21 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     Only lowercase letters, numbers, and hyphens.
                   </p>
                 </div>
-                
+
                 {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Category*</Label>
-                  <Input
-                    id="category"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    placeholder="Web / Mobile / UI / etc."
-                  />
+                  <Select name="category" value={formData.category} onValueChange={(value) => handleSelectChange('category', value)}>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder="Select a category" >Select a Category</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="mobile">Web App</SelectItem>
+                      <SelectItem value="ui">AI</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                
                 {/* Year */}
                 <div className="space-y-2">
                   <Label htmlFor="year">Year*</Label>
@@ -380,7 +387,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     placeholder="2024"
                   />
                 </div>
-                
+
                 {/* Role */}
                 <div className="space-y-2">
                   <Label htmlFor="role">Your Role*</Label>
@@ -392,7 +399,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     placeholder="Frontend Developer"
                   />
                 </div>
-                
+
                 {/* Duration */}
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duration*</Label>
@@ -405,7 +412,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   />
                 </div>
               </div>
-              
+
               {/* Main Image */}
               <div className="space-y-2">
                 <Label htmlFor="image">Main Image URL*</Label>
@@ -417,7 +424,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
-              
+
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description*</Label>
@@ -430,14 +437,14 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   rows={5}
                 />
               </div>
-              
+
               {/* Technologies */}
               <div className="space-y-2">
                 <Label htmlFor="technologies">Technologies*</Label>
                 <p className="text-sm text-muted-foreground">
                   Add the technologies used in this project
                 </p>
-                
+
                 <div className="flex flex-wrap gap-2 mb-2">
                   {technologies.map((tech, index) => (
                     <div key={index} className="bg-primary/10 text-primary py-1 px-3 rounded-full flex items-center">
@@ -454,7 +461,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex">
                   <Input
                     id="technologies"
@@ -479,7 +486,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Project Details Tab */}
             <TabsContent value="details" className="space-y-4">
               {/* Highlight */}
@@ -493,14 +500,14 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   placeholder="e.g., Increased conversion rate by 35%"
                 />
               </div>
-              
+
               {/* Key Features */}
               <div className="space-y-2">
                 <Label htmlFor="keyFeatures">Key Features*</Label>
                 <p className="text-sm text-muted-foreground">
                   Add the main features of this project
                 </p>
-                
+
                 <div className="space-y-2">
                   {keyFeatures.map((feature, index) => (
                     <div key={index} className="flex items-center">
@@ -519,7 +526,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex mt-2">
                   <Input
                     id="keyFeatures"
@@ -543,16 +550,16 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   </Button>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               {/* Challenges */}
               <div className="space-y-2">
                 <Label htmlFor="challenges">Challenges</Label>
                 <p className="text-sm text-muted-foreground">
                   Add challenges you faced during this project
                 </p>
-                
+
                 <div className="space-y-2">
                   {challenges.map((challenge, index) => (
                     <div key={index} className="flex items-center">
@@ -571,7 +578,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex mt-2">
                   <Input
                     id="challenges"
@@ -595,14 +602,14 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   </Button>
                 </div>
               </div>
-              
+
               {/* Solutions */}
               <div className="space-y-2">
                 <Label htmlFor="solutions">Solutions</Label>
                 <p className="text-sm text-muted-foreground">
                   Add solutions to the challenges
                 </p>
-                
+
                 <div className="space-y-2">
                   {solutions.map((solution, index) => (
                     <div key={index} className="flex items-center">
@@ -621,7 +628,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex mt-2">
                   <Input
                     id="solutions"
@@ -646,7 +653,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Media Tab */}
             <TabsContent value="media" className="space-y-4">
               {/* Gallery */}
@@ -655,7 +662,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 <p className="text-sm text-muted-foreground">
                   Add image URLs for your project gallery
                 </p>
-                
+
                 <div className="space-y-2">
                   {gallery.map((item, index) => (
                     <div key={index} className="flex items-center">
@@ -674,7 +681,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex mt-2">
                   <Input
                     id="gallery"
@@ -698,14 +705,14 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   </Button>
                 </div>
               </div>
-              
+
               {/* Testimonial */}
               <div className="space-y-2">
                 <Label>Testimonial</Label>
                 <p className="text-sm text-muted-foreground">
                   Add a testimonial for this project (optional)
                 </p>
-                
+
                 <div className="space-y-2 p-4 border rounded-md">
                   <div className="space-y-2">
                     <Label htmlFor="testimonial-text">Quote</Label>
@@ -743,7 +750,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Additional Tab */}
             <TabsContent value="extra" className="space-y-4">
               {/* Next Project Link */}
@@ -752,7 +759,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                 <p className="text-sm text-muted-foreground">
                   Link to another project (optional)
                 </p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nextProject">Next Project Title</Label>
@@ -778,11 +785,11 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
               </div>
             </TabsContent>
           </Tabs>
-          
+
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               disabled={formSubmitting}
             >
