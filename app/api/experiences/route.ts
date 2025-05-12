@@ -5,12 +5,12 @@ import prisma from '@/lib/prisma';
 import { withCors, corsPreflight } from '@/lib/withCors';
 
 // Handle OPTIONS request for CORS preflight
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return corsPreflight();
 }
 
 // GET all experiences
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const experiences = await prisma.experience.findMany({
       orderBy: {
