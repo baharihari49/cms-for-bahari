@@ -2,9 +2,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { withCors, corsPreflight } from '@/lib/withCors';
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return corsPreflight();
+}
 
 // GET all experiences
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const experiences = await prisma.experience.findMany({
       orderBy: {
@@ -20,15 +26,14 @@ export async function GET() {
       achievements: JSON.parse(exp.achievements as string) as string[],
     }));
 
-    return NextResponse.json({ 
-      success: true, 
-      data: transformedExperiences 
-    });
+    return withCors({ success: true, data: transformedExperiences });
   } catch (error) {
     console.error('Error fetching experiences:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch experiences' },
-      { status: 500 }
+    return withCors(
+      NextResponse.json(
+        { success: false, error: 'Failed to fetch experiences' },
+        { status: 500 }
+      )
     );
   }
 }
@@ -37,7 +42,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const experience = await prisma.experience.create({
       data: {
         title: body.title,
@@ -62,15 +67,14 @@ export async function POST(request: NextRequest) {
       achievements: JSON.parse(experience.achievements as string) as string[],
     };
 
-    return NextResponse.json(
-      { success: true, data: transformedExperience },
-      { status: 201 }
-    );
+    return withCors({ success: true, data: transformedExperience }, 201);
   } catch (error) {
     console.error('Error creating experience:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to create experience' },
-      { status: 500 }
+    return withCors(
+      NextResponse.json(
+        { success: false, error: 'Failed to create experience' },
+        { status: 500 }
+      )
     );
   }
 }
