@@ -1,0 +1,19 @@
+.tiptap-editor-wrapper {
+    display: block;
+    width: 100%;
+  }
+  
+  .tiptap-editor {
+    display: block;
+    width: 100%;
+  }
+  
+  .tiptap-editor .ProseMirror {
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  /* Styling untuk editor konten */
+  .tiptap-editor .ProseMirror p {
+    width: 100%;
+  }

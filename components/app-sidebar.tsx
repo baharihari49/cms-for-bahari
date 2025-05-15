@@ -6,7 +6,13 @@ import {
   MessageSquare, 
   Users, 
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
+  BookOpen,
+  FilePlus,
+  ListFilter,
+  Tags,
+  FolderTree,
+  ChevronDown
 } from "lucide-react"
 
 import {
@@ -24,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react"
 
 // Main navigation items
 const mainItems = [
@@ -49,6 +56,30 @@ const mainItems = [
   }
 ]
 
+// Blog items with nested structure
+const blogItems = [
+  {
+    title: "All Posts",
+    path: "/blog/posts",
+    icon: ListFilter,
+  },
+  {
+    title: "New Post",
+    path: "/blog/posts/new",
+    icon: FilePlus,
+  },
+  {
+    title: "Categories",
+    path: "/blog/categories",
+    icon: FolderTree,
+  },
+  {
+    title: "Tags",
+    path: "/blog/tags",
+    icon: Tags,
+  }
+]
+
 // Additional content items
 const contentItems = [
   {
@@ -63,17 +94,9 @@ const contentItems = [
   }
 ]
 
-// System items
-// const systemItems = [
-//   {
-//     title: "Settings",
-//     path: "/dashboard/settings",
-//     icon: Settings,
-//   }
-// ]
-
 export function AppSidebar() {
   const pathname = usePathname()
+  const [isBlogOpen, setIsBlogOpen] = useState(false)
 
   // Function to check if a menu item should be active
   const isActiveItem = (path: string) => {
@@ -82,6 +105,16 @@ export function AppSidebar() {
     }
     return pathname !== '/dashboard' && pathname.startsWith(path)
   }
+
+  // Check if any blog submenu is active
+  const isBlogActive = () => {
+    return blogItems.some(item => isActiveItem(item.path))
+  }
+
+  // Set initial state of blog menu based on active path
+  useEffect(() => {
+    setIsBlogOpen(isBlogActive())
+  }, [pathname])
 
   // Handle logout
   const handleLogout = async () => {
@@ -128,6 +161,42 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {/* Blog with nested items - using custom collapsible implementation */}
+              <SidebarMenuItem>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between px-2 gap-2"
+                  onClick={() => setIsBlogOpen(!isBlogOpen)}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" />
+                    <span>Blog</span>
+                  </div>
+                  <ChevronDown 
+                    className={`h-4 w-4 transition-transform ${isBlogOpen ? 'transform rotate-180' : ''}`} 
+                  />
+                </Button>
+              </SidebarMenuItem>
+              
+              {/* Blog submenu items */}
+              {isBlogOpen && (
+                <>
+                  {blogItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActiveItem(item.path)}
+                      >
+                        <Link href={item.path} className="flex items-center gap-2 pl-8">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -159,19 +228,6 @@ export function AppSidebar() {
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* {systemItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActiveItem(item.path)}
-                  >
-                    <Link href={item.path} className="flex items-center gap-2">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))} */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Button 

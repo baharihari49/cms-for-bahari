@@ -1,4 +1,4 @@
-// prisma/schema.prisma
+// prisma/schema.prisma (Updated with Blog models)
 
 generator client {
   provider = "prisma-client-js"
@@ -10,14 +10,15 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String     @id @default(cuid())
+  email        String     @unique
   password     String
   name         String?
-  role         String   @default("user") // Options: "admin", "user"
+  role         String     @default("user") // Options: "admin", "user"
   refreshToken String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  posts        BlogPost[] // Relation to BlogPost
 }
 
 model Experience {
@@ -94,4 +95,56 @@ model Testimonial {
   rating    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Blog Models
+model BlogPost {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  thumbnail   String?
+  excerpt     String?        @db.Text
+  content     String         @db.Text
+  hasImage    Boolean        @default(false)
+  isFeature   Boolean        @default(false)
+  published   Boolean        @default(false)
+  comments    Int            @default(0)
+  authorId    String
+  author      User           @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    BlogCategory   @relation(fields: [categoryId], references: [id])
+  tags        BlogPostTag[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model BlogCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
+  description String?     @db.Text
+  posts       BlogPost[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model BlogTag {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  slug        String        @unique
+  description String?       @db.Text
+  posts       BlogPostTag[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Junction table for many-to-many relationship between BlogPost and BlogTag
+model BlogPostTag {
+  postId    String
+  post      BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       BlogTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@id([postId, tagId])
 }

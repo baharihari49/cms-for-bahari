@@ -3,6 +3,7 @@ import { Roboto, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ClientLayout } from "./clientLayout";
+import { Toaster } from "@/components/ui/sonner"
 
 // Konfigurasi font Roboto
 const roboto = Roboto({
@@ -41,6 +42,7 @@ export default function RootLayout({
       >
           <AuthProvider>
             <ClientLayout>{children}</ClientLayout>
+            <Toaster />
           </AuthProvider>
       </body>
     </html>
