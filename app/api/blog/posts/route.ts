@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { withCors } from '@/lib/withCors';
 
 // GET all blog posts with optional filtering
 export async function GET(request: NextRequest) {
@@ -88,10 +89,11 @@ export async function GET(request: NextRequest) {
       updatedAt: post.updatedAt
     }));
 
-    return NextResponse.json({ 
-      success: true, 
-      data: formattedPosts 
-    });
+    // return NextResponse.json({ 
+    //   success: true, 
+    //   data: formattedPosts 
+    // });
+    return withCors({success: true, data: formattedPosts})
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     return NextResponse.json(

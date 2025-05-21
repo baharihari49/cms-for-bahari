@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { withCors } from '@/lib/withCors';
 
 // GET all blog tags
 export async function GET(request: NextRequest) {
@@ -45,10 +46,11 @@ export async function GET(request: NextRequest) {
         }
       });
       
-      return NextResponse.json({ 
-        success: true, 
-        data: tags 
-      });
+      // return NextResponse.json({ 
+      //   success: true, 
+      //   data: tags 
+      // });
+      return withCors({success: true, data: tags})
     }
   } catch (error) {
     console.error('Error fetching blog tags:', error);
