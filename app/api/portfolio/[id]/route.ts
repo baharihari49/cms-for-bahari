@@ -30,7 +30,8 @@ export async function GET(request: NextRequest) {
       // Convert null values to undefined untuk properti yang tidak menerima null dalam tipe Portfolio
       highlight: portfolioItem.highlight || undefined,
       nextProject: portfolioItem.nextProject || undefined,
-      nextProjectSlug: portfolioItem.nextProjectSlug || undefined,
+      nextProjectSlug: portfolioItem.nextProjectSlug || undefined,  
+      link: portfolioItem.link || undefined,
       
       // Parse JSON fields
       technologies: JSON.parse(portfolioItem.technologies as string),
