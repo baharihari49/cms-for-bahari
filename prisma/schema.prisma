@@ -57,6 +57,7 @@ model Portfolio {
   testimonial    Json?    // Stored as JSON object
   nextProject    String?
   nextProjectSlug String?
+  link String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }

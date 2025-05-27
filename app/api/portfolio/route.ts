@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         testimonial: body.testimonial ? JSON.stringify(body.testimonial) : Prisma.JsonNull,
         nextProject: body.nextProject,
         nextProjectSlug: body.nextProjectSlug,
+        link: body.link
       },
     });
 

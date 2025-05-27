@@ -41,6 +41,7 @@ export interface Experience {
     nextProjectSlug?: string;
     createdAt: Date;
     updatedAt: Date;
+    link: string;
   }
   
   export interface TechStack {

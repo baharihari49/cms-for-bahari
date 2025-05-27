@@ -88,6 +88,7 @@ export async function PATCH(request: NextRequest) {
     if (body.highlight !== undefined) dataToUpdate.highlight = body.highlight;
     if (body.nextProject !== undefined) dataToUpdate.nextProject = body.nextProject;
     if (body.nextProjectSlug !== undefined) dataToUpdate.nextProjectSlug = body.nextProjectSlug;
+    if (body.link !== undefined) dataToUpdate.link = body.link
     
     // Properti JSON yang wajib ada
     if (body.technologies) {

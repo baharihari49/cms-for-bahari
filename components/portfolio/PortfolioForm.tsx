@@ -45,6 +45,7 @@ const portfolioSchema = z.object({
   highlight: z.string().optional(),
   nextProject: z.string().optional(),
   nextProjectSlug: z.string().optional(),
+  link: z.string().optional()
 });
 
 // Default form state
@@ -60,6 +61,7 @@ const defaultFormData = {
   highlight: '',
   nextProject: '',
   nextProjectSlug: '',
+  link: '',
 };
 
 export function PortfolioForm({ open, onClose, onSuccess, portfolio }: PortfolioFormProps) {
@@ -130,6 +132,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
         highlight: portfolio.highlight || '',
         nextProject: portfolio.nextProject || '',
         nextProjectSlug: portfolio.nextProjectSlug || '',
+        link: portfolio.link || ''
       });
       setTechnologies(portfolio.technologies);
       setKeyFeatures(portfolio.keyFeatures);
@@ -428,6 +431,16 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   value={formData.image}
                   onChange={handleInputChange}
                   placeholder="https://example.com/image.jpg"
+                />
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor="image">Demo link</Label>
+                <Input
+                  id="link"
+                  name="link"
+                  value={formData.link}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com"
                 />
               </div>
 
