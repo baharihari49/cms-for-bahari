@@ -85,7 +85,7 @@ type FormData = z.infer<typeof postSchema>;
 export default function EditBlogPostPage() {
   // Use useParams() hook to get id from URL
   const params = useParams();
-  const postId = params.id as string;
+  const postSlug = params.slug as string;
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -116,7 +116,7 @@ export default function EditBlogPostPage() {
     async function fetchData() {
       try {
         // Fetch the blog post
-        const postResponse = await fetch(`/api/blog/posts/${postId}`);
+        const postResponse = await fetch(`/api/blog/posts/${postSlug}`);
         let postData;
         try {
           postData = await postResponse.json();
@@ -218,7 +218,7 @@ export default function EditBlogPostPage() {
     }
 
     fetchData();
-  }, [postId, form, router]);
+  }, [postSlug, form, router]);
 
   // Handle content change from Tiptap editor
   const handleEditorChange = (content: string) => {
@@ -233,7 +233,7 @@ export default function EditBlogPostPage() {
     values.tags = selectedTags;
     
     try {
-      const response = await fetch(`/api/blog/posts/${postId}`, {
+      const response = await fetch(`/api/blog/posts/${postSlug}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

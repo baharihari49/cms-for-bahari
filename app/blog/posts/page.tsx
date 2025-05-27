@@ -195,7 +195,7 @@ export default function BlogPostsPage() {
                             View
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => router.push(`/blog/posts/edit/${post.id}`)}
+                            onClick={() => router.push(`/blog/posts/edit/${post.slug}`)}
                           >
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
