@@ -11,6 +11,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { TestimonialFormData, RATING_OPTIONS } from "@/types/testimonial";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CloudinaryUpload } from "@/components/CloudinaryUpload";
 
 interface TestimonialFormProps {
   initialData: TestimonialFormData;
@@ -75,12 +76,10 @@ export function TestimonialForm({
         </Avatar>
         
         <div className="space-y-2">
-          <Label htmlFor="avatar">Avatar URL</Label>
-          <Input
-            id="avatar"
-            name="avatar"
+          <CloudinaryUpload
+            label="Avatar URL"
             value={formData.avatar || ''}
-            onChange={handleInputChange}
+            onChange={(url) => setFormData(prev => ({ ...prev, avatar: url }))}
             placeholder="https://example.com/avatar.jpg"
             disabled={isSubmitting}
           />

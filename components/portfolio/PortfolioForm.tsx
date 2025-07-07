@@ -24,6 +24,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { usePortfolioStore } from '@/hooks/usePortfolioStore';
 import { Portfolio } from '@/types';
 import { z } from 'zod';
+import { CloudinaryUpload } from '@/components/CloudinaryUpload';
 
 interface PortfolioFormProps {
   open: boolean;
@@ -72,7 +73,6 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
   const [keyFeatures, setKeyFeatures] = useState<string[]>([]);
   const [newKeyFeature, setNewKeyFeature] = useState('');
   const [gallery, setGallery] = useState<string[]>([]);
-  const [newGalleryItem, setNewGalleryItem] = useState('');
   const [challenges, setChallenges] = useState<string[]>([]);
   const [newChallenge, setNewChallenge] = useState('');
   const [solutions, setSolutions] = useState<string[]>([]);
@@ -100,7 +100,6 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
     setTestimonial(null);
     setNewTechnology('');
     setNewKeyFeature('');
-    setNewGalleryItem('');
     setNewChallenge('');
     setNewSolution('');
     setFormError(null);
@@ -193,12 +192,6 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
     setKeyFeatures(keyFeatures.filter((_, i) => i !== index));
   };
 
-  const addGalleryItem = () => {
-    if (newGalleryItem.trim()) {
-      setGallery([...gallery, newGalleryItem.trim()]);
-      setNewGalleryItem('');
-    }
-  };
 
   const removeGalleryItem = (index: number) => {
     setGallery(gallery.filter((_, i) => i !== index));
@@ -424,12 +417,10 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
 
               {/* Main Image */}
               <div className="space-y-2">
-                <Label htmlFor="image">Main Image URL*</Label>
-                <Input
-                  id="image"
-                  name="image"
+                <CloudinaryUpload
+                  label="Main Image*"
                   value={formData.image}
-                  onChange={handleInputChange}
+                  onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -701,28 +692,15 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   ))}
                 </div>
 
-                <div className="flex mt-2">
-                  <Input
-                    id="gallery"
-                    value={newGalleryItem}
-                    onChange={(e) => setNewGalleryItem(e.target.value)}
-                    placeholder="Add an image URL"
-                    className="flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addGalleryItem();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addGalleryItem}
-                    className="ml-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+                <CloudinaryUpload
+                  label=""
+                  value=""
+                  onChange={(url) => {
+                    setGallery([...gallery, url]);
+                  }}
+                  placeholder="Upload gallery image"
+                  className="mt-2"
+                />
               </div>
 
               {/* Testimonial */}

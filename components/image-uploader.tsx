@@ -11,6 +11,7 @@ export const ImageUploader = ({ onImageSelected, onClose }: ImageUploaderProps) 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageUrl, setImageUrl] = useState('');
+  const [error, setError] = useState('');
 
   // Handle direct URL input
   const handleUrlSubmit = () => {
@@ -20,46 +21,52 @@ export const ImageUploader = ({ onImageSelected, onClose }: ImageUploaderProps) 
     }
   };
 
-  // Handle file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file upload to Cloudinary
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Check if the file is an image
     if (!file.type.startsWith('image/')) {
-      alert('Silakan pilih file gambar (jpg, png, gif, dll)');
+      setError('Silakan pilih file gambar (jpg, png, gif, dll)');
       return;
     }
 
-    // Read file as Data URL for immediate preview
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Ukuran file terlalu besar. Maksimal 10MB');
+      return;
+    }
+
     setIsUploading(true);
-    const reader = new FileReader();
-    
-    reader.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const progress = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(progress);
+    setError('');
+    setUploadProgress(0);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload to Cloudinary via API route
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setUploadProgress(100);
+        onImageSelected(result.url);
+        onClose();
+      } else {
+        setError(result.error || 'Gagal mengupload gambar');
       }
-    };
-
-    reader.onload = () => {
-      // In a real implementation, you would upload to a server here
-      // For now, we'll just use the data URL directly
-      setTimeout(() => {
-        if (reader.result) {
-          onImageSelected(reader.result.toString());
-          setIsUploading(false);
-          onClose();
-        }
-      }, 500); // Simulate upload delay
-    };
-
-    reader.onerror = () => {
-      alert('Gagal membaca file gambar');
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError('Gagal mengupload gambar. Silakan coba lagi.');
+    } finally {
       setIsUploading(false);
-    };
-
-    reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -84,9 +91,15 @@ export const ImageUploader = ({ onImageSelected, onClose }: ImageUploaderProps) 
             {isUploading && (
               <div className="mt-2">
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+                  <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
-                <p className="text-sm mt-1">Mengupload... {uploadProgress}%</p>
+                <p className="text-sm mt-1">Mengupload ke Cloudinary... {uploadProgress}%</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="mt-2 text-red-600 text-sm">
+                {error}
               </div>
             )}
           </div>
