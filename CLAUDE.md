@@ -59,6 +59,13 @@ RESTful API endpoints following pattern:
 - `PUT /api/[resource]/[id]` - Update item (protected)  
 - `DELETE /api/[resource]/[id]` - Delete item (protected)
 
+### Blog API Endpoints
+- `GET /api/blog/posts` - Get all posts (supports filtering: categoryId, tagId, featured, published, limit)
+- `GET /api/blog/posts/recent` - Get recent posts (params: limit=5, published=true)
+- `GET /api/blog/posts/[slug]` - Get specific post by slug
+- `GET /api/blog/categories` - Get all categories
+- `GET /api/blog/tags` - Get all tags
+
 ### Frontend Structure
 - **Pages**: Admin dashboard with CRUD interfaces
 - **Components**: Reusable UI components with forms and tables
