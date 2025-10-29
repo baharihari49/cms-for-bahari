@@ -46,18 +46,22 @@ This is a Next.js 15 CMS application using the App Router with authentication an
 - **Testimonial**: Client testimonials and reviews
 
 ### Authentication System
-- JWT tokens stored in HTTP-only cookies
-- Middleware protection on API routes (skips GET requests)
-- Role-based access control (admin/user roles)
-- Automatic token refresh mechanism
+- JWT tokens stored in HTTP-only cookies (generated with `jose` library for Edge Runtime compatibility in `lib/jwt-edge.ts`)
+- Middleware (`middleware.ts`) protects write operations (POST/PUT/PATCH/DELETE) on API routes, skips GET requests for public access
+- Role-based access control (admin/user roles) validated in middleware
+- Automatic token refresh mechanism via `/api/auth/refresh` endpoint
 - Protected routes: `/api/experiences`, `/api/portfolio`, `/api/techstack`, `/api/faq`, `/api/testimonial`
+- Auth flow: `AuthProvider` (React Context) → `useAuth` hook → `AuthGuard` component wraps protected pages
+- Development: Set `NEXT_PUBLIC_SKIP_AUTH=true` to bypass authentication checks
 
 ### API Architecture
 RESTful API endpoints following pattern:
-- `GET /api/[resource]` - List items (public)
-- `POST /api/[resource]` - Create item (protected)
-- `PUT /api/[resource]/[id]` - Update item (protected)  
-- `DELETE /api/[resource]/[id]` - Delete item (protected)
+- `GET /api/[resource]` - List items (public, no auth required)
+- `POST /api/[resource]` - Create item (protected, auth required)
+- `PUT/PATCH /api/[resource]/[id]` - Update item (protected, auth required)
+- `DELETE /api/[resource]/[id]` - Delete item (protected, auth required)
+
+All routes under `app/api/` with responses using `NextResponse.json()` and optional `withCors()` wrapper.
 
 ### Blog API Endpoints
 - `GET /api/blog/posts` - Get all posts (supports filtering: categoryId, tagId, featured, published, limit)
@@ -67,21 +71,46 @@ RESTful API endpoints following pattern:
 - `GET /api/blog/tags` - Get all tags
 
 ### Frontend Structure
-- **Pages**: Admin dashboard with CRUD interfaces
-- **Components**: Reusable UI components with forms and tables
-- **Hooks**: Custom hooks for auth state and data stores (Zustand)
-- **State Management**: React Context for auth, Zustand for data stores
+- **Pages**: Admin management pages at root routes (`/experiences`, `/portfolio`, `/blog/posts`, etc.) with CRUD interfaces
+- **Components**: Reusable UI components (`components/ui/` for shadcn/ui, resource-specific components in `components/[resource]/`)
+- **Hooks**: Custom hooks pattern - `useAuth` (React Context) for authentication, custom store hooks (`useExperienceStore`, `usePortfolioStore`) for data fetching
+- **State Management**: React Context (`AuthProvider`) wraps app for authentication state; data fetching/mutations handled via custom store hooks with local state
 
 ### Key Features
-- Rich text editing with TiptapEditor for blog posts
-- **Cloudinary image upload integration** - All image inputs replaced with CloudinaryUpload component
-- Responsive admin dashboard with sidebar navigation
+- **Rich text editing**: TiptapEditor (`components/tiptap-editor.tsx`) with extensions for headings, links, images, code blocks, tables, text alignment
+- **Cloudinary image upload**: `CloudinaryUpload` component (`components/CloudinaryUpload.tsx`) handles both file uploads (via `/api/upload`) and direct URL input
+- **Admin management pages**: Client-side pages for CRUD operations using dialog-based forms and data tables
 - Dark/light theme support with next-themes
 - Form validation using react-hook-form with Zod schemas
+- CORS support via `withCors` utility (`lib/withCors.ts`) for API responses
+
+### Common Patterns
+
+#### Creating a New Resource
+When adding a new content type:
+1. Add model to `prisma/schema.prisma` with `@id @default(cuid())`
+2. Run `npx prisma db push` to update database
+3. Create API routes in `app/api/[resource]/route.ts` (GET, POST) and `app/api/[resource]/[id]/route.ts` (PATCH, DELETE)
+4. Add route to middleware's `protectedRoutes` array in `middleware.ts`
+5. Create custom store hook in `hooks/use[Resource]Store.ts` following `useExperienceStore` pattern
+6. Create admin page at `app/[resource]/page.tsx` with form/table components
+7. Wrap page with `<AuthGuard requiredRole="admin">`
+
+#### API Request Pattern
+All data-fetching hooks use `credentials: 'include'` for cookie-based auth:
+```typescript
+const response = await fetch('/api/resource', {
+  credentials: 'include',
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data)
+});
+```
 
 ### Development Notes
 - Uses TypeScript with strict configuration
 - Components follow shadcn/ui patterns and conventions
 - Database uses cuid() for primary keys
-- JSON fields store arrays/objects for complex data (skills, technologies, etc.)
+- JSON fields store arrays/objects for complex data (skills, technologies, achievements, etc.)
 - Middleware logs requests for debugging (includes Indonesian comments)
+- All admin pages are client-side components (`'use client'`) for state management and forms
