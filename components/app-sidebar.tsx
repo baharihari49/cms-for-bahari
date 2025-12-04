@@ -1,10 +1,10 @@
 // components/app-sidebar.tsx
-import { 
-  Building, 
-  Briefcase, 
-  Code, 
-  MessageSquare, 
-  Users, 
+import {
+  Building,
+  Briefcase,
+  Code,
+  MessageSquare,
+  Users,
   LogOut,
   LayoutDashboard,
   BookOpen,
@@ -12,7 +12,8 @@ import {
   ListFilter,
   Tags,
   FolderTree,
-  ChevronDown
+  ChevronDown,
+  Layers
 } from "lucide-react"
 
 import {
@@ -80,6 +81,20 @@ const blogItems = [
   }
 ]
 
+// Collection items with nested structure
+const collectionItems = [
+  {
+    title: "All Collections",
+    path: "/collections",
+    icon: ListFilter,
+  },
+  {
+    title: "Categories",
+    path: "/collections/categories",
+    icon: FolderTree,
+  }
+]
+
 // Additional content items
 const contentItems = [
   {
@@ -97,6 +112,7 @@ const contentItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const [isBlogOpen, setIsBlogOpen] = useState(false)
+  const [isCollectionOpen, setIsCollectionOpen] = useState(false)
 
   // Function to check if a menu item should be active
   const isActiveItem = (path: string) => {
@@ -111,9 +127,15 @@ export function AppSidebar() {
     return blogItems.some(item => isActiveItem(item.path))
   }
 
-  // Set initial state of blog menu based on active path
+  // Check if any collection submenu is active
+  const isCollectionActive = () => {
+    return collectionItems.some(item => isActiveItem(item.path))
+  }
+
+  // Set initial state of menus based on active path
   useEffect(() => {
     setIsBlogOpen(isBlogActive())
+    setIsCollectionOpen(isCollectionActive())
   }, [pathname])
 
   // Handle logout
@@ -183,6 +205,42 @@ export function AppSidebar() {
               {isBlogOpen && (
                 <>
                   {blogItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActiveItem(item.path)}
+                      >
+                        <Link href={item.path} className="flex items-center gap-2 pl-8">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
+
+              {/* Collections with nested items */}
+              <SidebarMenuItem>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between px-2 gap-2"
+                  onClick={() => setIsCollectionOpen(!isCollectionOpen)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-5 w-5" />
+                    <span>Collections</span>
+                  </div>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isCollectionOpen ? 'transform rotate-180' : ''}`}
+                  />
+                </Button>
+              </SidebarMenuItem>
+
+              {/* Collection submenu items */}
+              {isCollectionOpen && (
+                <>
+                  {collectionItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild

@@ -19,10 +19,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Environment Variables Required
 
 - `DATABASE_URL` - MySQL database connection string
-- `JWT_SECRET` - Secret key for JWT token generation
+- `JWT_SECRET` - Secret key for JWT token generation (min 32 chars)
+- `JWT_EXPIRES_IN` - Token expiration duration (e.g., '1d', '12h') - defaults to '1d'
 - `CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name for image uploads
 - `CLOUDINARY_API_KEY` - Cloudinary API key
 - `CLOUDINARY_API_SECRET` - Cloudinary API secret
+- `NEXT_PUBLIC_SKIP_AUTH` - Set to 'true' to bypass auth in development
 
 ## Architecture Overview
 
@@ -46,13 +48,13 @@ This is a Next.js 15 CMS application using the App Router with authentication an
 - **Testimonial**: Client testimonials and reviews
 
 ### Authentication System
-- JWT tokens stored in HTTP-only cookies (generated with `jose` library for Edge Runtime compatibility in `lib/jwt-edge.ts`)
+- JWT tokens stored in HTTP-only cookies (`access_token` cookie), generated with `jose` library for Edge Runtime compatibility (`lib/jwt-edge.ts`)
 - Middleware (`middleware.ts`) protects write operations (POST/PUT/PATCH/DELETE) on API routes, skips GET requests for public access
 - Role-based access control (admin/user roles) validated in middleware
 - Automatic token refresh mechanism via `/api/auth/refresh` endpoint
-- Protected routes: `/api/experiences`, `/api/portfolio`, `/api/techstack`, `/api/faq`, `/api/testimonial`
-- Auth flow: `AuthProvider` (React Context) → `useAuth` hook → `AuthGuard` component wraps protected pages
-- Development: Set `NEXT_PUBLIC_SKIP_AUTH=true` to bypass authentication checks
+- Protected routes defined in middleware matcher: `/api/experiences`, `/api/portfolio`, `/api/techstack`, `/api/faq`, `/api/testimonial`
+- Auth flow: `AuthProvider` (defined in `hooks/useAuth.tsx`) → `useAuth` hook → `AuthGuard` component wraps protected pages
+- Auth endpoints: `/api/auth/login`, `/api/auth/logout`, `/api/auth/register`, `/api/auth/me`, `/api/auth/refresh`
 
 ### API Architecture
 RESTful API endpoints following pattern:
@@ -66,9 +68,9 @@ All routes under `app/api/` with responses using `NextResponse.json()` and optio
 ### Blog API Endpoints
 - `GET /api/blog/posts` - Get all posts (supports filtering: categoryId, tagId, featured, published, limit)
 - `GET /api/blog/posts/recent` - Get recent posts (params: limit=5, published=true)
-- `GET /api/blog/posts/[slug]` - Get specific post by slug
-- `GET /api/blog/categories` - Get all categories
-- `GET /api/blog/tags` - Get all tags
+- `GET /api/blog/posts/[slug]` - Get/update/delete specific post by slug
+- `GET /api/blog/categories` - Get all categories (CRUD via `/api/blog/categories/[id]`)
+- `GET /api/blog/tags` - Get all tags (CRUD via `/api/blog/tags/[id]`)
 
 ### Frontend Structure
 - **Pages**: Admin management pages at root routes (`/experiences`, `/portfolio`, `/blog/posts`, etc.) with CRUD interfaces
@@ -107,10 +109,17 @@ const response = await fetch('/api/resource', {
 });
 ```
 
+### Key Library Files
+- `lib/prisma.ts` - Singleton Prisma client instance
+- `lib/jwt-edge.ts` - JWT sign/verify functions using `jose` (Edge Runtime compatible)
+- `lib/withCors.ts` - CORS wrapper utilities (`withCors`, `corsPreflight`)
+- `lib/auth-utils.ts` - Authentication helper utilities
+- `lib/utils.ts` - General utilities including `cn()` for className merging
+
 ### Development Notes
 - Uses TypeScript with strict configuration
 - Components follow shadcn/ui patterns and conventions
 - Database uses cuid() for primary keys
 - JSON fields store arrays/objects for complex data (skills, technologies, achievements, etc.)
-- Middleware logs requests for debugging (includes Indonesian comments)
 - All admin pages are client-side components (`'use client'`) for state management and forms
+- Blog posts use slugs as identifiers in routes (not IDs)

@@ -9,6 +9,7 @@ const protectedRoutes: string[] = [
   '/api/techstack',
   '/api/faq',
   '/api/testimonial',
+  '/api/collections',
 ];
 
 // Define admin-only routes
@@ -19,7 +20,7 @@ const adminRoutes: string[] = [
 // Check if we should skip auth in development
 const skipAuth = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Secara eksplisit mengambil metode HTTP
   const method = request.method.toUpperCase();
   const { pathname } = request.nextUrl;
@@ -112,6 +113,6 @@ export const config = {
     '/api/techstack/:path*',
     '/api/faq/:path*',
     '/api/testimonial/:path*',
-    // Add other protected routes here
+    '/api/collections/:path*',
   ],
 };

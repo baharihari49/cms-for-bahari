@@ -150,3 +150,29 @@ model BlogPostTag {
 
   @@id([postId, tagId])
 }
+
+// Collection Models
+model CollectionCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
+  description String?      @db.Text
+  collections Collection[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Collection {
+  id          String             @id @default(cuid())
+  title       String
+  slug        String             @unique
+  description String?            @db.Text
+  thumbnail   String?
+  htmlContent String             @db.LongText
+  published   Boolean            @default(false)
+  order       Int?
+  categoryId  String
+  category    CollectionCategory @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
