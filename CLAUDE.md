@@ -21,9 +21,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `DATABASE_URL` - MySQL database connection string
 - `JWT_SECRET` - Secret key for JWT token generation (min 32 chars)
 - `JWT_EXPIRES_IN` - Token expiration duration (e.g., '1d', '12h') - defaults to '1d'
-- `CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name for image uploads
-- `CLOUDINARY_API_KEY` - Cloudinary API key
-- `CLOUDINARY_API_SECRET` - Cloudinary API secret
+- `MINIO_ENDPOINT` - MinIO server hostname (e.g., localhost or minio.domain.com)
+- `MINIO_PORT` - MinIO API port (default: 9000)
+- `MINIO_USE_SSL` - Use HTTPS (true/false)
+- `MINIO_ACCESS_KEY` - MinIO access key
+- `MINIO_SECRET_KEY` - MinIO secret key
+- `MINIO_BUCKET_NAME` - Bucket name for uploads (default: cms-uploads)
+- `MINIO_PUBLIC_URL` - Public URL for accessing images
 - `NEXT_PUBLIC_SKIP_AUTH` - Set to 'true' to bypass auth in development
 
 ## Architecture Overview
@@ -36,23 +40,23 @@ This is a Next.js 15 CMS application using the App Router with authentication an
 - **Authentication**: JWT-based with cookies, custom middleware
 - **UI**: Tailwind CSS with Radix UI components (shadcn/ui)
 - **Rich Text**: TiptapEditor for blog content
-- **Image Storage**: Cloudinary integration
+- **Image Storage**: MinIO (S3-compatible) integration
 
 ### Database Models
 - **User**: Authentication with role-based access (admin/user)
-- **BlogPost**: Rich content with categories, tags, thumbnails
+- **BlogPost**: Rich content with categories, tags, thumbnails (uses slug-based routing)
+- **BlogCategory/BlogTag**: Blog organization with many-to-many relationship via `BlogPostTag`
 - **Portfolio**: Project showcase with galleries and technologies
 - **Experience**: Work history with skills and achievements
 - **TechStack**: Technologies with proficiency levels
-- **FAQ**: Frequently asked questions with categories
+- **FAQ**: Frequently asked questions with categories and ordering
 - **Testimonial**: Client testimonials and reviews
+- **Collection/CollectionCategory**: HTML content collections with categories
 
 ### Authentication System
 - JWT tokens stored in HTTP-only cookies (`access_token` cookie), generated with `jose` library for Edge Runtime compatibility (`lib/jwt-edge.ts`)
-- Middleware (`middleware.ts`) protects write operations (POST/PUT/PATCH/DELETE) on API routes, skips GET requests for public access
-- Role-based access control (admin/user roles) validated in middleware
+- Role-based access control (admin/user roles)
 - Automatic token refresh mechanism via `/api/auth/refresh` endpoint
-- Protected routes defined in middleware matcher: `/api/experiences`, `/api/portfolio`, `/api/techstack`, `/api/faq`, `/api/testimonial`
 - Auth flow: `AuthProvider` (defined in `hooks/useAuth.tsx`) → `useAuth` hook → `AuthGuard` component wraps protected pages
 - Auth endpoints: `/api/auth/login`, `/api/auth/logout`, `/api/auth/register`, `/api/auth/me`, `/api/auth/refresh`
 
@@ -72,6 +76,12 @@ All routes under `app/api/` with responses using `NextResponse.json()` and optio
 - `GET /api/blog/categories` - Get all categories (CRUD via `/api/blog/categories/[id]`)
 - `GET /api/blog/tags` - Get all tags (CRUD via `/api/blog/tags/[id]`)
 
+### Collections API Endpoints
+- `GET/POST /api/collections` - List/create collections (supports filtering: categoryId, published)
+- `GET/PATCH/DELETE /api/collections/[id]` - Single collection operations
+- `GET/POST /api/collections/categories` - List/create collection categories
+- `GET/PATCH/DELETE /api/collections/categories/[id]` - Single category operations
+
 ### Frontend Structure
 - **Pages**: Admin management pages at root routes (`/experiences`, `/portfolio`, `/blog/posts`, etc.) with CRUD interfaces
 - **Components**: Reusable UI components (`components/ui/` for shadcn/ui, resource-specific components in `components/[resource]/`)
@@ -80,7 +90,7 @@ All routes under `app/api/` with responses using `NextResponse.json()` and optio
 
 ### Key Features
 - **Rich text editing**: TiptapEditor (`components/tiptap-editor.tsx`) with extensions for headings, links, images, code blocks, tables, text alignment
-- **Cloudinary image upload**: `CloudinaryUpload` component (`components/CloudinaryUpload.tsx`) handles both file uploads (via `/api/upload`) and direct URL input
+- **MinIO image upload**: `ImageUpload` component (`components/ImageUpload.tsx`) handles both file uploads (via `/api/upload` to MinIO) and direct URL input
 - **Admin management pages**: Client-side pages for CRUD operations using dialog-based forms and data tables
 - Dark/light theme support with next-themes
 - Form validation using react-hook-form with Zod schemas
@@ -93,10 +103,9 @@ When adding a new content type:
 1. Add model to `prisma/schema.prisma` with `@id @default(cuid())`
 2. Run `npx prisma db push` to update database
 3. Create API routes in `app/api/[resource]/route.ts` (GET, POST) and `app/api/[resource]/[id]/route.ts` (PATCH, DELETE)
-4. Add route to middleware's `protectedRoutes` array in `middleware.ts`
-5. Create custom store hook in `hooks/use[Resource]Store.ts` following `useExperienceStore` pattern
-6. Create admin page at `app/[resource]/page.tsx` with form/table components
-7. Wrap page with `<AuthGuard requiredRole="admin">`
+4. Create custom store hook in `hooks/use[Resource]Store.ts` following `useCollectionStore` pattern
+5. Create admin page at `app/[resource]/page.tsx` with form/table components
+6. Wrap page with `<AuthGuard requiredRole="admin">`
 
 #### API Request Pattern
 All data-fetching hooks use `credentials: 'include'` for cookie-based auth:
@@ -111,9 +120,11 @@ const response = await fetch('/api/resource', {
 
 ### Key Library Files
 - `lib/prisma.ts` - Singleton Prisma client instance
+- `lib/minio.ts` - MinIO S3 client singleton for image uploads
 - `lib/jwt-edge.ts` - JWT sign/verify functions using `jose` (Edge Runtime compatible)
 - `lib/withCors.ts` - CORS wrapper utilities (`withCors`, `corsPreflight`)
 - `lib/auth-utils.ts` - Authentication helper utilities
+- `lib/blog.ts` - Blog post formatting helpers (`formatBlogPost`, `createSlug`, `prepareBlogPostForDatabase`)
 - `lib/utils.ts` - General utilities including `cn()` for className merging
 
 ### Development Notes

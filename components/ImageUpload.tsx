@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Upload, Image as ImageIcon, X, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 
-interface CloudinaryUploadProps {
+interface ImageUploadProps {
   label?: string
   value?: string
   onChange: (url: string) => void
@@ -17,15 +17,15 @@ interface CloudinaryUploadProps {
   accept?: string
 }
 
-export const CloudinaryUpload = ({ 
-  label, 
-  value, 
-  onChange, 
+export const ImageUpload = ({
+  label,
+  value,
+  onChange,
   placeholder = "https://example.com/image.jpg",
   className = "",
   disabled = false,
   accept = "image/*"
-}: CloudinaryUploadProps) => {
+}: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
@@ -96,13 +96,13 @@ export const CloudinaryUpload = ({
   return (
     <div className={`space-y-3 ${className}`}>
       {label && <Label>{label}</Label>}
-      
+
       {/* Preview Image */}
       {value && (
         <div className="relative inline-block">
-          <Image 
-            src={value} 
-            alt="Preview" 
+          <Image
+            src={value}
+            alt="Preview"
             width={128}
             height={128}
             className="w-32 h-32 object-cover rounded-lg border border-gray-200"
@@ -144,7 +144,7 @@ export const CloudinaryUpload = ({
                 </>
               )}
             </Button>
-            
+
             <Button
               type="button"
               variant="outline"

@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { Collection, CollectionCategory, CollectionFormData } from '@/types/collection';
 import { HtmlEditor } from './HtmlEditor';
-import { CloudinaryUpload } from '@/components/CloudinaryUpload';
+import { ImageUpload } from '@/components/ImageUpload';
 
 interface CollectionFormProps {
   open: boolean;
@@ -258,7 +258,7 @@ export function CollectionForm({
             <TabsContent value="media" className="mt-4">
               <div className="space-y-2">
                 <Label>Thumbnail Image</Label>
-                <CloudinaryUpload
+                <ImageUpload
                   value={thumbnail}
                   onChange={setThumbnail}
                 />

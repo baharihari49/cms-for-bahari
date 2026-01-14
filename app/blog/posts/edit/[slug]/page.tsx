@@ -29,7 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
 import { TiptapEditor } from '@/components/tiptap-editor'
-import { CloudinaryUpload } from '@/components/CloudinaryUpload'
+import { ImageUpload } from '@/components/ImageUpload'
 
 // Types for categories and tags
 interface Category {
@@ -387,7 +387,7 @@ export default function EditBlogPostPage() {
                       <FormItem>
                         <FormLabel>Thumbnail</FormLabel>
                         <FormControl>
-                          <CloudinaryUpload
+                          <ImageUpload
                             value={field.value || ''}
                             onChange={field.onChange}
                             placeholder="Upload thumbnail image"

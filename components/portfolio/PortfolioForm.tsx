@@ -24,7 +24,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { usePortfolioStore } from '@/hooks/usePortfolioStore';
 import { Portfolio } from '@/types';
 import { z } from 'zod';
-import { CloudinaryUpload } from '@/components/CloudinaryUpload';
+import { ImageUpload } from '@/components/ImageUpload';
 
 interface PortfolioFormProps {
   open: boolean;
@@ -417,7 +417,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
 
               {/* Main Image */}
               <div className="space-y-2">
-                <CloudinaryUpload
+                <ImageUpload
                   label="Main Image*"
                   value={formData.image}
                   onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
@@ -692,7 +692,7 @@ export function PortfolioForm({ open, onClose, onSuccess, portfolio }: Portfolio
                   ))}
                 </div>
 
-                <CloudinaryUpload
+                <ImageUpload
                   label=""
                   value=""
                   onChange={(url) => {

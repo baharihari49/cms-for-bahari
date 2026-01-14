@@ -24,7 +24,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { useExperienceStore } from '@/hooks/useExperienceStore';
 import { Experience } from '@/types';
 import { z } from 'zod';
-import { CloudinaryUpload } from '@/components/CloudinaryUpload';
+import { ImageUpload } from '@/components/ImageUpload';
 
 interface ExperienceFormProps {
   open: boolean;
@@ -278,7 +278,7 @@ export function ExperienceForm({ open, onClose, onSuccess, experience }: Experie
             
             {/* Company Logo */}
             <div className="space-y-2">
-              <CloudinaryUpload
+              <ImageUpload
                 label="Company Logo"
                 value={formData.companyLogo}
                 onChange={(url) => setFormData(prev => ({ ...prev, companyLogo: url }))}
